@@ -1,0 +1,117 @@
+@import "tailwindcss";
+
+/* ── Design Tokens ─────────────────────────────────────── */
+:root {
+  --bg-primary: #FAFAF7;
+  --bg-surface: #FFFFFF;
+  --bg-surface-alt: #F4F3EE;
+  --border: #E2E0D8;
+  --border-dark: #C8C5BB;
+  --text-primary: #1A1A1A;
+  --text-muted: #999690;
+  --text-white: #FAFAF7;
+  --accent-gold: #C8A96E;
+  --accent-gold-light: #E8D5A8;
+  --radius: 4px;
+  --radius-md: 6px;
+
+  /* Font stacks */
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+/* ── Tailwind Theme Bridge ─────────────────────────────── */
+@theme inline {
+  --color-background: var(--bg-primary);
+  --color-foreground: var(--text-primary);
+  --color-surface: var(--bg-surface);
+  --color-surface-alt: var(--bg-surface-alt);
+  --color-border: var(--border);
+  --color-muted: var(--text-muted);
+  --color-gold: var(--accent-gold);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+}
+
+/* ── Base Reset ────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100dvh;
+}
+
+/* ── Typography Utilities ──────────────────────────────── */
+.font-serif   { font-family: var(--font-serif); }
+.font-sans    { font-family: var(--font-sans); }
+.font-mono    { font-family: var(--font-mono); }
+
+/* The Italian Editorial Split — roman + italic serif */
+.serif-roman  { font-family: var(--font-serif); font-style: normal; }
+.serif-italic { font-family: var(--font-serif); font-style: italic; }
+
+/* ── Scroll Fade-Up Animation ──────────────────────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up.delay-1 { transition-delay: 0.1s; }
+.fade-up.delay-2 { transition-delay: 0.2s; }
+.fade-up.delay-3 { transition-delay: 0.3s; }
+.fade-up.delay-4 { transition-delay: 0.4s; }
+.fade-up.delay-5 { transition-delay: 0.5s; }
+
+/* ── Card hover ────────────────────────────────────────── */
+.card-hover {
+  transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 8px 32px rgba(26, 26, 26, 0.08);
+  border-color: var(--border-dark);
+  transform: translateY(-2px);
+}
+
+/* ── Horizontal Rule (editorial) ───────────────────────── */
+.editorial-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+/* ── Pill scrollbar hide ───────────────────────────────── */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* ── Focus ring ────────────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--accent-gold);
+  outline-offset: 2px;
+}
+
+/* ── Selection ─────────────────────────────────────────── */
+::selection {
+  background: var(--accent-gold-light);
+  color: var(--text-primary);
+}
