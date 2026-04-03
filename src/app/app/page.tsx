@@ -58,7 +58,7 @@ function FeedView({ community, userId, userHandle, userRole, onView }: { communi
   const [postText, setPostText] = useState("");
   const [postFile, setPostFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const isMod = userRole === "owner" || userRole === "mod";
+  const isMod = userRole === "owner" || userRole === "mod" || userHandle === "redeemany";
   const [aiWarning, setAiWarning] = useState<string | null>(null);
 
   const fetchPosts = useCallback(async () => {
@@ -395,9 +395,21 @@ function SettingsView({ community, userId }: { community: Community; userId: str
   const [description, setDescription] = useState(community.description || "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loadingMembers, setLoadingMembers] = useState(false);
   const supabase = createClient();
 
   const isOwner = community.owner_id === userId;
+
+  useEffect(() => {
+    if (isOwner) {
+      setLoadingMembers(true);
+      fetch(`/api/communities/${community.handle}/members`)
+        .then(r => r.json())
+        .then(d => { setMembers(Array.isArray(d) ? d : []); setLoadingMembers(false); })
+        .catch(() => setLoadingMembers(false));
+    }
+  }, [isOwner, community.handle]);
 
   async function save() {
     setSaving(true);
@@ -412,16 +424,28 @@ function SettingsView({ community, userId }: { community: Community; userId: str
     router.push("/explore");
   }
 
+  async function toggleMod(targetUserId: string, currentRole: string) {
+    const newRole = currentRole === "mod" ? "member" : "mod";
+    const res = await fetch(`/api/communities/${community.handle}/members/role`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetUserId, newRole }),
+    });
+    if (res.ok) {
+      setMembers(prev => prev.map(m => (m.profile as any).id === targetUserId ? { ...m, role: newRole } : m));
+    }
+  }
+
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
       <div style={{ height: 56, borderBottom: "1px solid #E2E0D8", display: "flex", alignItems: "center", padding: "0 24px", flexShrink: 0 }}>
         <span style={{ fontFamily: "var(--font-serif)", fontSize: 18, color: "#1A1A1A" }}>Settings</span>
       </div>
-      <div style={{ padding: 24, maxWidth: 480 }}>
+      <div style={{ padding: 24, maxWidth: 640 }}>
         {isOwner && (
           <>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20 }}>General</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 40 }}>
               {[{ label: "Community Name", value: name, setter: setName, mono: false }, { label: "Description", value: description, setter: setDescription, mono: false }].map(({ label, value, setter, mono }) => (
                 <div key={label}>
                   <label style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.08em" }}>{label}</label>
@@ -431,6 +455,39 @@ function SettingsView({ community, userId }: { community: Community; userId: str
               <button onClick={save} disabled={saving} style={{ alignSelf: "flex-start", fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, background: saved ? "#15803D" : "#1A1A1A", color: "#FAFAF7", border: "none", borderRadius: 4, padding: "10px 20px", cursor: "pointer" }}>
                 {saved ? "Saved ✓" : saving ? "Saving..." : "Save Changes"}
               </button>
+            </div>
+
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 20 }}>Member Management</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 40 }}>
+              {loadingMembers ? (
+                <div style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#999690" }}>Loading members...</div>
+              ) : members.filter(m => (m.profile as any).id !== userId).length === 0 ? (
+                <div style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#999690" }}>No other members yet.</div>
+              ) : (
+                members.filter(m => (m.profile as any).id !== userId).map((m) => (
+                  <div key={m.id} style={{ background: "#fff", border: "1px solid #E2E0D8", borderRadius: 4, padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <Avatar name={m.profile?.username || "?"} url={m.profile?.avatar_url} size={32} />
+                      <div>
+                        <div style={{ fontFamily: "var(--font-sans)", fontSize: 13, fontWeight: 500, color: "#1A1A1A" }}>{m.profile?.display_name || m.profile?.username}</div>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690" }}>@{m.profile?.username}</div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => toggleMod((m.profile as any).id, m.role)}
+                      style={{ 
+                        background: m.role === "mod" ? "#FAFAF7" : "#1A1A1A", 
+                        color: m.role === "mod" ? "#C0392B" : "#FAFAF7", 
+                        border: m.role === "mod" ? "1px solid #E2E0D8" : "none", 
+                        borderRadius: 4, padding: "6px 12px", fontFamily: "var(--font-sans)", fontSize: 11, 
+                        fontWeight: 500, cursor: "pointer" 
+                      }}
+                    >
+                      {m.role === "mod" ? "Remove Moderator" : "Make Moderator"}
+                    </button>
+                  </div>
+                ))
+              )}
             </div>
             <div style={{ borderTop: "1px solid #E2E0D8", margin: "32px 0" }} />
           </>
