@@ -271,6 +271,53 @@ function FeedView({ community, userId, userHandle, userRole, onView }: { communi
   );
 }
 
+/* ── Preview View ────────────────────────────────────────── */
+function PreviewView({ community, onJoin }: { community: Community; onJoin: () => void }) {
+  const [joining, setJoining] = useState(false);
+
+  const handleJoin = async () => {
+    setJoining(true);
+    await onJoin();
+    setJoining(false);
+  };
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", overflowY: "auto" }}>
+      <div style={{ width: "100%", height: 200, position: "relative", flexShrink: 0 }}>
+        {community.banner_url ? (
+          <img src={community.banner_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        ) : (
+          <div style={{ width: "100%", height: "100%", background: "linear-gradient(135deg, #E2E0D8, #CAC7BE)" }} />
+        )}
+        <div style={{ position: "absolute", bottom: -40, left: 40, border: "4px solid #FAFAF7", borderRadius: "50%", background: "#fff", overflow: "hidden" }}>
+          <Avatar name={community.name} url={community.avatar_url} size={80} color={community.color} />
+        </div>
+      </div>
+      
+      <div style={{ padding: "60px 40px 40px", maxWidth: 800 }}>
+        <h1 style={{ fontFamily: "var(--font-serif)", fontSize: 32, color: "#1A1A1A", marginBottom: 8 }}>{community.name}</h1>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#999690", marginBottom: 24, textTransform: "uppercase" }}>@{community.handle} · {community.member_count} members</div>
+        
+        <p style={{ fontFamily: "var(--font-sans)", fontSize: 16, color: "#1A1A1A", lineHeight: 1.6, marginBottom: 32, maxWidth: 500 }}>
+          {community.description || "This community hasn't set a description yet."}
+        </p>
+
+        <button 
+          onClick={handleJoin} 
+          disabled={joining}
+          style={{ 
+            background: "#1A1A1A", color: "#FAFAF7", border: "none", borderRadius: 4, 
+            padding: "12px 32px", fontFamily: "var(--font-sans)", fontSize: 14, 
+            fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 
+          }}
+        >
+          {joining ? "Joining..." : "Join Community →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /* ── Requests View ──────────────────────────────────────── */
 function RequestsView({ community }: { community: Community }) {
   const [requests, setRequests] = useState<Member[]>([]);
