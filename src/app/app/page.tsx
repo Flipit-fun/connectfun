@@ -467,8 +467,8 @@ function SettingsView({ community, userId }: { community: Community; userId: str
   }
 
   async function leaveCommunity() {
-    await supabase.from("connect_members").delete().eq("community_id", community.id).eq("user_id", userId);
-    router.push("/explore");
+    const res = await fetch(`/api/communities/${community.handle}/join`, { method: "DELETE" });
+    if (res.ok) router.push("/explore");
   }
 
   async function toggleMod(targetUserId: string, currentRole: string) {
@@ -729,17 +729,8 @@ function AppInner() {
 
   const joinCommunity = async (c: Community) => {
     if (!userId) return;
-    const { data: commInfo } = await supabase.from("connect_communities").select("visibility").eq("id", c.id).single();
-    const status = commInfo?.visibility === "invite" ? "pending" : "active";
-    
-    await supabase.from("connect_members").insert({ 
-      community_id: c.id, 
-      user_id: userId, 
-      role: "member",
-      status 
-    });
-    
-    await init();
+    const res = await fetch(`/api/communities/${c.handle}/join`, { method: "POST" });
+    if (res.ok) await init();
   };
 
   useEffect(() => {
