@@ -269,6 +269,56 @@ export function HomepageClient() {
       </section>
 
 
+      {/* ── Section 6: Official Community ($CONNECT) ────────── */}
+      <section style={{ background: "#FAFAF7", padding: "40px 0 96px" }}>
+        <div style={{ maxWidth: 1152, margin: "0 auto", padding: "0 40px" }}>
+          <FadeUp>
+            <div 
+              style={{ 
+                background: "#1A1A1A", borderRadius: 8, padding: "64px 48px", 
+                display: "grid", gridTemplateColumns: "1fr 1fr", gap: 64, alignItems: "center",
+                boxShadow: "0 20px 40px rgba(0,0,0,0.12)", position: "relative", overflow: "hidden"
+              }}
+            >
+              {/* Background Accent */}
+              <div style={{ position: "absolute", top: -100, right: -100, width: 300, height: 300, background: "radial-gradient(circle, rgba(200,169,110,0.1) 0%, transparent 70%)", pointerEvents: "none" }} />
+              
+              <div>
+                <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "#C8A96E", letterSpacing: "0.15em", textTransform: "uppercase", marginBottom: 16 }}>Official Community</div>
+                <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(32px, 4vw, 48px)", color: "#FAFAF7", lineHeight: 1.1, margin: "0 0 24px" }}>
+                  The Heart of <br />
+                  <span style={{ fontStyle: "italic", color: "#C8A96E" }}>$CONNECT</span>
+                </h2>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 15, color: "#999690", lineHeight: 1.7, marginBottom: 32, maxWidth: 400 }}>
+                  Join the official hub for the Connect ecosystem. Direct access to builders, 
+                  exclusive updates, and the signal without the noise.
+                </p>
+                <Link href="/Connect">
+                  <Button variant="gold" size="lg">Join Ecosystem</Button>
+                </Link>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                {[
+                  { label: "Ticker", value: "$CONNECT", sub: "Official Token" },
+                  { label: "Access", value: "Public", sub: "Open to Holders" },
+                  { label: "Status", value: "Verified", sub: "Core Community" }
+                ].map((item) => (
+                  <div key={item.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "20px 24px" }}>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>{item.label}</div>
+                    <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                      <span style={{ fontFamily: "var(--font-serif)", fontSize: 24, color: "#FAFAF7", fontStyle: "italic" }}>{item.value}</span>
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#C8A96E" }}>{item.sub}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+
       {/* ── Section 7: CTA Banner ─────────────────────── */}
       <section style={{ background: "#1A1A1A", padding: "96px 40px" }}>
         <FadeUp>
