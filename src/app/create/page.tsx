@@ -127,7 +127,7 @@ function StepIdentity({ data, onChange, validationError }: { data: FormData; onC
       <div>
         <Label>Handle / Slug</Label>
         <div style={{ display: "flex", border: "1px solid #E2E0D8", borderRadius: 4, overflow: "hidden" }}>
-          <span style={{ padding: "10px 14px", background: "#F4F3EE", borderRight: "1px solid #E2E0D8", fontFamily: "var(--font-mono)", fontSize: 13, color: "#999690", whiteSpace: "nowrap" as const }}>connect.app/</span>
+          <span style={{ padding: "10px 14px", background: "#F4F3EE", borderRight: "1px solid #E2E0D8", fontFamily: "var(--font-mono)", fontSize: 13, color: "#999690", whiteSpace: "nowrap" as const }}>connectapp.fun/</span>
           <input value={data.handle} onChange={(e) => onChange({ handle: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "") })} placeholder="your-community"
             style={{ flex: 1, padding: "10px 14px", fontFamily: "var(--font-mono)", fontSize: 13, color: "#1A1A1A", background: "transparent", border: "none", outline: "none" }} />
         </div>
@@ -207,7 +207,7 @@ function StepLaunch({ data, onLaunch, loading, error }: { data: FormData; onLaun
       <div style={{ border: "1px solid #E2E0D8", borderRadius: 4, overflow: "hidden" }}>
         {[
           { label: "NAME", value: data.name || "—" },
-          { label: "HANDLE", value: data.handle ? `connect.app/${data.handle}` : "—" },
+          { label: "HANDLE", value: data.handle ? `connectapp.fun/${data.handle}` : "—" },
           { label: "DESCRIPTION", value: data.description || "—" },
           { label: "CATEGORIES", value: data.categories.join(", ") || "—" },
           { label: "VISIBILITY", value: data.visibility.charAt(0).toUpperCase() + data.visibility.slice(1) },

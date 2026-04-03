@@ -472,9 +472,9 @@ function RightPanel({ community, members, handle }: { community: Community; memb
       <div style={{ background: "#fff", border: "1px solid #E2E0D8", borderRadius: 4, padding: 16 }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Invite Link</div>
         <div style={{ background: "#F4F3EE", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 8 }}>
-          connect.app/{handle}
+          connectapp.fun/{handle}
         </div>
-        <button onClick={() => navigator.clipboard.writeText(`https://connect.app/${handle}`)}
+        <button onClick={() => navigator.clipboard.writeText(`https://connectapp.fun/${handle}`)}
           style={{ width: "100%", fontFamily: "var(--font-sans)", fontSize: 12, background: "transparent", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px", cursor: "pointer", color: "#1A1A1A" }}>
           Copy Link
         </button>
