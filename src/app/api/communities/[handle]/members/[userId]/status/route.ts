@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 // PATCH /api/communities/[handle]/members/[userId]/status — Approve/Decline members
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { handle: string; userId: string } }
+  { params }: { params: Promise<{ handle: string; userId: string }> }
 ) {
   const { handle, userId } = await params;
   const { status } = await req.json();

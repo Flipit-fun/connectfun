@@ -4,7 +4,7 @@ import { createServerClient } from "@supabase/ssr";
 // DELETE /api/communities/[handle]/posts/[postId] — Delete a post (Owner/Mod)
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { handle: string; postId: string } }
+  { params }: { params: Promise<{ handle: string; postId: string }> }
 ) {
   const { handle, postId } = await params;
   const cookieStore = req.cookies;
@@ -41,7 +41,7 @@ export async function DELETE(
 // PATCH /api/communities/[handle]/posts/[postId] — Toggle pin (Owner/Mod)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { handle: string; postId: string } }
+  { params }: { params: Promise<{ handle: string; postId: string }> }
 ) {
   const { handle, postId } = await params;
   const body = await req.json();
