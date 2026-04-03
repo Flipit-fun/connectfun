@@ -73,16 +73,19 @@ function CommunityCard({ c, userId, joined }: { c: Community; userId: string | n
   const initials = c.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div
+    <Link 
+      href={`/app?community=${c.handle}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
         background: "#fff", border: "1px solid", borderRadius: 4, overflow: "hidden",
         display: "flex", flexDirection: "column",
+        textDecoration: "none",
         borderColor: hovered ? "#C8C5BB" : "#E2E0D8",
         boxShadow: hovered ? "0 8px 32px rgba(26,26,26,0.08)" : "none",
         transform: hovered ? "translateY(-2px)" : "none",
         transition: "all 0.2s ease",
+        cursor: "pointer"
       }}
     >
       {/* Banner */}
@@ -104,9 +107,9 @@ function CommunityCard({ c, userId, joined }: { c: Community; userId: string | n
         </div>
 
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8, marginBottom: 8 }}>
-          <Link href={`/app?community=${c.handle}`} style={{ fontFamily: "var(--font-serif)", fontSize: 16, color: "#1A1A1A", lineHeight: 1.3, textDecoration: "none" }}>
+          <span style={{ fontFamily: "var(--font-serif)", fontSize: 16, color: "#1A1A1A", lineHeight: 1.3 }}>
             {c.name}
-          </Link>
+          </span>
           {c.categories?.[0] && (
             <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", background: "#F4F3EE", border: "1px solid #E2E0D8", padding: "2px 8px", borderRadius: 3, textTransform: "uppercase", letterSpacing: "0.05em", flexShrink: 0 }}>
               {c.categories[0]}
@@ -125,7 +128,7 @@ function CommunityCard({ c, userId, joined }: { c: Community; userId: string | n
             {c.member_count.toLocaleString()} members
           </span>
           <button
-            onClick={handleJoin}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleJoin(e); }}
             disabled={loading}
             style={{
               fontFamily: "var(--font-mono)", fontSize: 11,
@@ -137,7 +140,7 @@ function CommunityCard({ c, userId, joined }: { c: Community; userId: string | n
           </button>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
