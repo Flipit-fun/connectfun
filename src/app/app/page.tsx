@@ -472,31 +472,6 @@ function RightPanel({ community, members, handle }: { community: Community; memb
         </div>
       </div>
 
-      <div style={{ background: "#fff", border: "1px solid #E2E0D8", borderRadius: 4, padding: 16 }}>
-        <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Invite Link</div>
-        <div style={{ background: "#F4F3EE", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 8 }}>
-          www.connectapp.fun/app?community={handle}
-        </div>
-        <button onClick={() => navigator.clipboard.writeText(`https://www.connectapp.fun/app?community=${handle}`)}
-          style={{ width: "100%", fontFamily: "var(--font-sans)", fontSize: 12, background: "transparent", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px", cursor: "pointer", color: "#1A1A1A" }}>
-          Copy Link
-        </button>
-      </div>
-
-      {members.length > 0 && (
-        <div style={{ background: "#fff", border: "1px solid #E2E0D8", borderRadius: 4, padding: 16 }}>
-          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Members</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {members.slice(0, 5).map((m) => (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar name={m.profile?.username || "?"} url={m.profile?.avatar_url} size={26} />
-                <div style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: 11, color: "#1A1A1A", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>@{m.profile?.username}</div>
-                <span style={{ ...roleBadgeStyle(m.role), fontFamily: "var(--font-mono)", fontSize: 9, padding: "2px 6px", borderRadius: 3, textTransform: "uppercase", flexShrink: 0 }}>{m.role}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </aside>
   );
 }
@@ -548,7 +523,7 @@ function Sidebar({ myCommunities, activeHandle, onSelect, activeView, onView, us
         {/* Nav for active community */}
         {activeHandle && (
           <div style={{ marginTop: 16, paddingTop: 12, borderTop: "1px solid #E2E0D8" }}>
-            {(["feed", "members", "requests", "settings"] as const).map((v) => {
+            {(["feed", "requests", "settings"] as const).map((v) => {
               if (v === "requests" && !["owner", "mod"].includes((myCommunities.find(c => c.handle === activeHandle) as any)?.userRole)) return null;
               return (
                 <button key={v} onClick={() => onView(v)}

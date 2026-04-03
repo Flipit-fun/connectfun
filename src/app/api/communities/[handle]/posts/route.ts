@@ -60,6 +60,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ han
     .select(`*, author:connect_profiles(username, display_name, avatar_url)`)
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) {
+    console.error("Post insertion error:", error.message);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+  
   return NextResponse.json(post, { status: 201 });
 }
