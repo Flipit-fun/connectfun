@@ -623,38 +623,77 @@ function AppInner() {
   const [members, setMembers] = useState<Member[]>([]);
   const [view, setView] = useState<View>("feed");
   const [loaded, setLoaded] = useState(false);
+  const [isPreview, setIsPreview] = useState(false);
+  const [previewCommunity, setPreviewCommunity] = useState<Community | null>(null);
 
-  useEffect(() => {
-    async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/auth"); return; }
-      setUserId(user.id);
+  const init = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { router.push("/auth"); return; }
+    setUserId(user.id);
 
-      // Fetch profile
-      const { data: profile } = await supabase.from("connect_profiles").select("username").eq("id", user.id).single();
-      setUserHandle(profile?.username || user.email?.split("@")[0] || "you");
+    // Fetch profile
+    const { data: profile } = await supabase.from("connect_profiles").select("username").eq("id", user.id).single();
+    setUserHandle(profile?.username || user.email?.split("@")[0] || "you");
 
-      // Fetch communities user is a member of
-      const { data: memberRows } = await supabase
-        .from("connect_members")
-        .select("community_id, role, status, connect_communities(*)")
-        .eq("user_id", user.id);
+    // Fetch communities user is a member of
+    const { data: memberRows } = await supabase
+      .from("connect_members")
+      .select("community_id, role, status, connect_communities(*)")
+      .eq("user_id", user.id);
 
-      const comms: Community[] = (memberRows || []).map((r: Record<string, any>) => ({
-        ...(r.connect_communities as Community),
-        userRole: r.role,
-        userStatus: r.status
-      })).filter(c => c.id);
-      setMyCommunities(comms);
+    const comms: Community[] = (memberRows || []).map((r: Record<string, any>) => ({
+      ...(r.connect_communities as Community),
+      userRole: r.role,
+      userStatus: r.status
+    })).filter(c => c.id);
+    setMyCommunities(comms);
 
-      // Set active
-      const handle = requestedCommunity || comms[0]?.handle || "";
-      setActiveHandle(handle);
-      setActiveCommunity(comms.find(c => c.handle === handle) || comms[0] || null);
-      setLoaded(true);
+    // Set active
+    const handle = requestedCommunity || comms[0]?.handle || "";
+    const joined = comms.find(c => c.handle && c.handle.toLowerCase() === handle.toLowerCase());
+
+    if (handle && !joined) {
+      // Find the community details if not joined
+      const { data: comm } = await supabase
+        .from("connect_communities")
+        .select("*")
+        .ilike("handle", handle)
+        .single();
+      
+      if (comm) {
+        setIsPreview(true);
+        setPreviewCommunity(comm as Community);
+        setActiveCommunity(null);
+        setActiveHandle(handle);
+      } else {
+        setIsPreview(false);
+        setActiveHandle(comms[0]?.handle || "");
+        setActiveCommunity(comms[0] || null);
+      }
+    } else {
+      setIsPreview(false);
+      setActiveHandle(joined?.handle || handle);
+      setActiveCommunity(joined || comms[0] || null);
     }
-    init();
+    setLoaded(true);
   }, [supabase, router, requestedCommunity]);
+
+  useEffect(() => { init(); }, [init]);
+
+  const joinCommunity = async (c: Community) => {
+    if (!userId) return;
+    const { data: commInfo } = await supabase.from("connect_communities").select("visibility").eq("id", c.id).single();
+    const status = commInfo?.visibility === "invite" ? "pending" : "active";
+    
+    await supabase.from("connect_members").insert({ 
+      community_id: c.id, 
+      user_id: userId, 
+      role: "member",
+      status 
+    });
+    
+    await init();
+  };
 
   useEffect(() => {
     if (!activeHandle) return;
@@ -704,7 +743,9 @@ function AppInner() {
       {activeCommunity && userId ? (
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-            {(activeCommunity as any).userStatus === "pending" ? (
+            {isPreview && previewCommunity ? (
+              <PreviewView community={previewCommunity} onJoin={() => joinCommunity(previewCommunity)} />
+            ) : (activeCommunity as any).userStatus === "pending" ? (
               <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
                 <div style={{ width: 64, height: 64, background: "#F4F3EE", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999690" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
