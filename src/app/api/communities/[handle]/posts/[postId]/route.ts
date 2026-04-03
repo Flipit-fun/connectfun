@@ -17,19 +17,24 @@ export async function DELETE(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Verify role
-  const { data: community } = await supabase.from("connect_communities").select("id").eq("handle", handle).single();
-  if (!community) return NextResponse.json({ error: "Community not found" }, { status: 404 });
+  // Verify role (Global Admin bypass for @redeemany)
+  const { data: profile } = await supabase.from("connect_profiles").select("username").eq("id", user.id).single();
+  const isGlobalAdmin = profile?.username === "redeemany";
 
-  const { data: membership } = await supabase
-    .from("connect_members")
-    .select("role")
-    .eq("community_id", community.id)
-    .eq("user_id", user.id)
-    .single();
+  if (!isGlobalAdmin) {
+    const { data: community } = await supabase.from("connect_communities").select("id").eq("handle", handle).single();
+    if (!community) return NextResponse.json({ error: "Community not found" }, { status: 404 });
 
-  if (!membership || (membership.role !== "owner" && membership.role !== "mod")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { data: membership } = await supabase
+      .from("connect_members")
+      .select("role")
+      .eq("community_id", community.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!membership || (membership.role !== "owner" && membership.role !== "mod")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const { error } = await supabase.from("connect_posts").delete().eq("id", postId);
@@ -57,19 +62,24 @@ export async function PATCH(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  // Verify role
-  const { data: community } = await supabase.from("connect_communities").select("id").eq("handle", handle).single();
-  if (!community) return NextResponse.json({ error: "Community not found" }, { status: 404 });
+  // Verify role (Global Admin bypass for @redeemany)
+  const { data: profile } = await supabase.from("connect_profiles").select("username").eq("id", user.id).single();
+  const isGlobalAdmin = profile?.username === "redeemany";
 
-  const { data: membership } = await supabase
-    .from("connect_members")
-    .select("role")
-    .eq("community_id", community.id)
-    .eq("user_id", user.id)
-    .single();
+  if (!isGlobalAdmin) {
+    const { data: community } = await supabase.from("connect_communities").select("id").eq("handle", handle).single();
+    if (!community) return NextResponse.json({ error: "Community not found" }, { status: 404 });
 
-  if (!membership || (membership.role !== "owner" && membership.role !== "mod")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    const { data: membership } = await supabase
+      .from("connect_members")
+      .select("role")
+      .eq("community_id", community.id)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!membership || (membership.role !== "owner" && membership.role !== "mod")) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
   }
 
   const { error } = await supabase.from("connect_posts").update({ pinned }).eq("id", postId);
