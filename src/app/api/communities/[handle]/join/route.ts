@@ -11,7 +11,7 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ ha
   const { data: community } = await supabase
     .from("connect_communities")
     .select("id, visibility")
-    .eq("handle", handle)
+    .ilike("handle", handle)
     .single();
   if (!community) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

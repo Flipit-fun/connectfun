@@ -728,9 +728,17 @@ function AppInner() {
   useEffect(() => { init(); }, [init]);
 
   const joinCommunity = async (c: Community) => {
-    if (!userId) return;
+    if (!userId) { alert("Please log in again."); return; }
+    console.log(`Attempting to join community: ${c.handle}`);
     const res = await fetch(`/api/communities/${c.handle}/join`, { method: "POST" });
-    if (res.ok) await init();
+    if (res.ok) {
+      console.log("Join success! Re-initializing...");
+      await init();
+    } else {
+      const data = await res.json();
+      console.error("Join failed:", data.error);
+      alert(`Join failed: ${data.error || "Unknown error"}`);
+    }
   };
 
   useEffect(() => {
