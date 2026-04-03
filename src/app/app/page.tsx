@@ -769,7 +769,7 @@ function AppInner() {
     );
   }
 
-  if (myCommunities.length === 0) {
+  if (myCommunities.length === 0 && !requestedCommunity && !isPreview) {
     return (
       <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
         <Sidebar myCommunities={[]} activeHandle="" onSelect={() => {}} activeView="feed" onView={() => {}} userHandle={userHandle} />
@@ -787,37 +787,48 @@ function AppInner() {
   return (
     <div style={{ display: "flex", height: "100vh", overflow: "hidden", background: "#FAFAF7" }}>
       <Sidebar myCommunities={myCommunities} activeHandle={activeHandle} onSelect={selectCommunity} activeView={view} onView={setView} userHandle={userHandle} />
-      {activeCommunity && userId ? (
-        <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
-          <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-            {isPreview && previewCommunity ? (
-              <PreviewView community={previewCommunity} onJoin={() => joinCommunity(previewCommunity)} />
-            ) : (activeCommunity as any).userStatus === "pending" ? (
-              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
-                <div style={{ width: 64, height: 64, background: "#F4F3EE", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999690" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+        {isPreview && previewCommunity ? (
+          <PreviewView community={previewCommunity} onJoin={() => joinCommunity(previewCommunity)} />
+        ) : activeCommunity && userId ? (
+          <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
+            <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
+              {(activeCommunity as any).userStatus === "pending" ? (
+                <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
+                  <div style={{ width: 64, height: 64, background: "#F4F3EE", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999690" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </div>
+                  <h2 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 24, color: "#1A1A1A", marginBottom: 12 }}>Waiting for Approval</h2>
+                  <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#999690", maxWidth: 320, lineHeight: 1.6 }}>
+                    Your request to join {activeCommunity.name} is pending. You'll be able to see the feed and post once an admin approves you.
+                  </p>
                 </div>
-                <h2 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 24, color: "#1A1A1A", marginBottom: 12 }}>Waiting for Approval</h2>
-                <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#999690", maxWidth: 320, lineHeight: 1.6 }}>
-                  Your request to join {activeCommunity.name} is pending. You'll be able to see the feed and post once an admin approves you.
-                </p>
-              </div>
+              ) : (
+                <>
+                  {view === "feed" && activeCommunity && <FeedView community={activeCommunity} userId={userId || ""} userHandle={userHandle} userRole={(activeCommunity as any).userRole || "member"} onView={setView} />}
+                  {view === "members" && <MembersView community={activeCommunity} />}
+                  {view === "requests" && <RequestsView community={activeCommunity} />}
+                  {view === "settings" && <SettingsView community={activeCommunity} userId={userId} />}
+                </>
+              )}
+            </div>
+            {view === "feed" && activeCommunity && (activeCommunity as any).userStatus !== "pending" && <RightPanel community={activeCommunity} members={members} handle={activeHandle} />}
+          </div>
+        ) : (
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {myCommunities.length === 0 ? (
+               <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", flexDirection: "column", gap: 20 }}>
+               <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 24, color: "#999690" }}>Select a community or browse new ones.</p>
+               <div style={{ display: "flex", gap: 12 }}>
+                 <Link href="/explore" style={{ fontFamily: "var(--font-sans)", fontSize: 13, color: "#1A1A1A", border: "1px solid #E2E0D8", borderRadius: 4, padding: "10px 20px", textDecoration: "none" }}>Browse communities</Link>
+               </div>
+             </div>
             ) : (
-              <>
-                {view === "feed" && activeCommunity && <FeedView community={activeCommunity} userId={userId || ""} userHandle={userHandle} userRole={(activeCommunity as any).userRole || "member"} onView={setView} />}
-                {view === "members" && <MembersView community={activeCommunity} />}
-                {view === "requests" && <RequestsView community={activeCommunity} />}
-                {view === "settings" && <SettingsView community={activeCommunity} userId={userId} />}
-              </>
+              <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#999690" }}>Select a community to begin.</p>
             )}
           </div>
-          {view === "feed" && <RightPanel community={activeCommunity} members={members} handle={activeHandle} />}
-        </div>
-      ) : (
-        <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <p style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", color: "#999690" }}>Select a community</p>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
