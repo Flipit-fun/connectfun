@@ -47,7 +47,7 @@ const features = [
   { num: "03", label: "DISCOVERY", name: "Category System", desc: "Memecoin, DAO, NFT, Gaming, Dev, Social — tagged and searchable." },
   { num: "04", label: "FEED", name: "Clean Chronological Feed", desc: "Posts and announcements. No algorithm. No noise. Just signal." },
   { num: "05", label: "INVITE", name: "Invite & Access Control", desc: "Shareable links, invite-only toggle, member approval queue." },
-  { num: "06", label: "SAFETY", name: "Spam-Free by Design", desc: "Role-gated posting, mod tools, report system built in from day one." },
+  { num: "06", label: "AI MODERATION", name: "Connect AI", desc: "Automatic spam and link filtering. Keeps your community high-signal by removing the noise before it starts." },
 ];
 
 const categories = [
