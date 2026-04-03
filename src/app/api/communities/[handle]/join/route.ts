@@ -10,14 +10,17 @@ export async function POST(_req: NextRequest, { params }: { params: Promise<{ ha
 
   const { data: community } = await supabase
     .from("connect_communities")
-    .select("id")
+    .select("id, visibility")
     .eq("handle", handle)
     .single();
   if (!community) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+  // If invite-only or private, status is pending
+  const status = (community.visibility === "invite" || community.visibility === "private") ? "pending" : "active";
+
   const { error } = await supabase
     .from("connect_members")
-    .insert({ community_id: community.id, user_id: user.id, role: "member" });
+    .insert({ community_id: community.id, user_id: user.id, role: "member", status });
 
   if (error && error.code !== "23505") {
     return NextResponse.json({ error: error.message }, { status: 500 });

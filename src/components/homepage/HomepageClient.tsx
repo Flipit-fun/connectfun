@@ -293,7 +293,7 @@ export function HomepageClient() {
                   Join the official hub for the Connect ecosystem. Direct access to builders, 
                   exclusive updates, and the signal without the noise.
                 </p>
-                <Link href="/Connect">
+                <Link href="/app?community=connect">
                   <Button variant="gold" size="lg">Join Ecosystem</Button>
                 </Link>
               </div>

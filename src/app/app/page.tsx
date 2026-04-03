@@ -119,6 +119,9 @@ function FeedView({ community, userId, userHandle, userRole, onView }: { communi
       setPostText("");
       setPostFile(null);
       await fetchPosts();
+    } else {
+      const errorData = await res.json();
+      setAiWarning(errorData.error || "Failed to post. Please check your connection and try again.");
     }
     setSubmitting(false);
   }
@@ -472,9 +475,9 @@ function RightPanel({ community, members, handle }: { community: Community; memb
       <div style={{ background: "#fff", border: "1px solid #E2E0D8", borderRadius: 4, padding: 16 }}>
         <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "#999690", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Invite Link</div>
         <div style={{ background: "#F4F3EE", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px 12px", fontFamily: "var(--font-mono)", fontSize: 11, color: "#999690", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 8 }}>
-          connectapp.fun/{handle}
+          www.connectapp.fun/app?community={handle}
         </div>
-        <button onClick={() => navigator.clipboard.writeText(`https://connectapp.fun/${handle}`)}
+        <button onClick={() => navigator.clipboard.writeText(`https://www.connectapp.fun/app?community=${handle}`)}
           style={{ width: "100%", fontFamily: "var(--font-sans)", fontSize: 12, background: "transparent", border: "1px solid #E2E0D8", borderRadius: 4, padding: "8px", cursor: "pointer", color: "#1A1A1A" }}>
           Copy Link
         </button>
@@ -602,12 +605,13 @@ function AppInner() {
       // Fetch communities user is a member of
       const { data: memberRows } = await supabase
         .from("connect_members")
-        .select("community_id, role, connect_communities(*)")
+        .select("community_id, role, status, connect_communities(*)")
         .eq("user_id", user.id);
 
       const comms: Community[] = (memberRows || []).map((r: Record<string, any>) => ({
         ...(r.connect_communities as Community),
-        userRole: r.role
+        userRole: r.role,
+        userStatus: r.status
       })).filter(c => c.id);
       setMyCommunities(comms);
 
@@ -668,10 +672,24 @@ function AppInner() {
       {activeCommunity && userId ? (
         <div style={{ flex: 1, display: "flex", overflow: "hidden" }}>
           <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column" }}>
-            {view === "feed" && activeCommunity && <FeedView community={activeCommunity} userId={userId || ""} userHandle={userHandle} userRole={(activeCommunity as any).userRole || "member"} onView={setView} />}
-            {view === "members" && <MembersView community={activeCommunity} />}
-            {view === "requests" && <RequestsView community={activeCommunity} />}
-            {view === "settings" && <SettingsView community={activeCommunity} userId={userId} />}
+            {(activeCommunity as any).userStatus === "pending" ? (
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 40, textAlign: "center" }}>
+                <div style={{ width: 64, height: 64, background: "#F4F3EE", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 24 }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#999690" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <h2 style={{ fontFamily: "var(--font-serif)", fontStyle: "italic", fontSize: 24, color: "#1A1A1A", marginBottom: 12 }}>Waiting for Approval</h2>
+                <p style={{ fontFamily: "var(--font-sans)", fontSize: 14, color: "#999690", maxWidth: 320, lineHeight: 1.6 }}>
+                  Your request to join {activeCommunity.name} is pending. You'll be able to see the feed and post once an admin approves you.
+                </p>
+              </div>
+            ) : (
+              <>
+                {view === "feed" && activeCommunity && <FeedView community={activeCommunity} userId={userId || ""} userHandle={userHandle} userRole={(activeCommunity as any).userRole || "member"} onView={setView} />}
+                {view === "members" && <MembersView community={activeCommunity} />}
+                {view === "requests" && <RequestsView community={activeCommunity} />}
+                {view === "settings" && <SettingsView community={activeCommunity} userId={userId} />}
+              </>
+            )}
           </div>
           {view === "feed" && <RightPanel community={activeCommunity} members={members} handle={activeHandle} />}
         </div>
